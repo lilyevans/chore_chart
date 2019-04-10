@@ -12,7 +12,8 @@ jobs:
           name: unit-test
           command: 'yarn test'
   publish-test-env:
-    machine: true
+    docker:
+      image: heroku/
     steps:
       - checkout
       - run:
@@ -26,7 +27,7 @@ jobs:
       - run:
           name: publish-image-to-heroku
           command: |
-            docker login --username $HEROKU_LOGIN --password $HEROKU_KEY registry.heroku.com
+            docker login --username=_ --password=$HEROKU_KEY registry.heroku.com
             docker tag lilyevans/chore-chart:$CIRCLE_SHA1 registry.heroku.com/chore-chart-test/web
             docker push registry.heroku.com/chore-chart-test/web
 
