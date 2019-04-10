@@ -12,8 +12,7 @@ jobs:
           name: unit-test
           command: 'yarn test'
   publish-test-env:
-    docker:
-      - image: docker:stable-git
+    machine: true
     steps:
       - checkout
       - run:
