@@ -11,6 +11,25 @@ jobs:
       - run:
           name: unit-test
           command: 'yarn test'
+  publish-test-env:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - checkout
+      - run:
+          name: build-image
+          command: 'docker build -t lilyevans/chore-chart:$CIRCLE_SHA1 .'
+      - run:
+          name: publish-image-to-docker-hub
+          command: |
+            docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_PASS
+            docker push lilyevans/chore-chart:$CIRCLE_SHA1
+      - run:
+          name: publish-image-to-heroku
+          command: |
+            docker login --username $HEROKU_LOGIN --password $HEROKU_KEY registry.heroku.com
+            docker tag lilyevans/chore-chart:$CIRCLE_SHA1 registry.heroku.com/chore-chart-test/web
+            docker push registry.heroku.com/chore-chart-test/web
 
 
 
@@ -19,3 +38,6 @@ workflows:
   build-and-publish:
     jobs:
       - unit-test
+      - publish-test-env:
+          requires:
+            - unit-test
