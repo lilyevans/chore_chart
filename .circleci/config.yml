@@ -12,9 +12,11 @@ jobs:
           name: unit-test
           command: 'yarn test'
   publish-test-env:
-    machine: true
+    docker:
+    - image: docker:stable-git
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: build-image
           command: 'docker build -t lilyevans/chore-chart:$CIRCLE_SHA1 .'
