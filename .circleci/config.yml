@@ -12,11 +12,9 @@ jobs:
           name: unit-test
           command: 'yarn test'
   publish-test-env:
-    docker:
-    - image: docker:stable-git
+    machine: true
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: build-image
           command: 'docker build -t lilyevans/chore-chart:$CIRCLE_SHA1 .'
@@ -31,8 +29,23 @@ jobs:
             docker login --username=_ --password=$HEROKU_KEY registry.heroku.com
             docker tag lilyevans/chore-chart:$CIRCLE_SHA1 registry.heroku.com/chore-chart-test/web
             docker push registry.heroku.com/chore-chart-test/web
-
-
+      - run:
+          name: set-image-id
+          command: 'DOCKER_IMAGE_ID=$(docker inspect registry.heroku.com/chore-chart-test/web --format={{.Id}})'
+      - run:
+          name: release-image-to-env
+          command: |
+            curl -n -X PATCH https://api.heroku.com/apps/chore-chart-test/formation \
+              -d '{
+              "updates": [
+                {
+                  "type": "web",
+                  "docker_image": "'"$DOCKER_IMAGE_ID"'"
+                }
+              ]
+            }' \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/vnd.heroku+json; version=3.docker-releases"
 
 workflows:
   version: 2
