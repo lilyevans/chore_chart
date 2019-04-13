@@ -24,18 +24,12 @@ jobs:
             docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_PASS
             docker push lilyevans/chore-chart:$CIRCLE_SHA1
       - run:
-          name: publish-image-to-heroku
+          name: publish-image-to-heroku-and-release
           command: |
             docker login --username=_ --password=$HEROKU_CLI_TOKEN registry.heroku.com
             docker tag lilyevans/chore-chart:$CIRCLE_SHA1 registry.heroku.com/chore-chart-test/web
             docker push registry.heroku.com/chore-chart-test/web
-      - run:
-          name: set-image-id
-          command: 'DOCKER_IMAGE_ID=$(docker inspect registry.heroku.com/chore-chart-test/web --format={{.Id}})'
-      - run:
-          name: release-image-to-env
-          command: |
-            echo $DOCKER_IMAGE_ID
+            DOCKER_IMAGE_ID=$(docker inspect registry.heroku.com/chore-chart-test/web --format={{.Id}})
             curl -n -X PATCH https://api.heroku.com/apps/chore-chart-test/formation \
               -d '{
               "updates": [
