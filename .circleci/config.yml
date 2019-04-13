@@ -35,6 +35,7 @@ jobs:
       - run:
           name: release-image-to-env
           command: |
+            echo $DOCKER_IMAGE_ID
             curl -n -X PATCH https://api.heroku.com/apps/chore-chart-test/formation \
               -d '{
               "updates": [
