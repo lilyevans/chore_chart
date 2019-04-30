@@ -42,8 +42,7 @@ jobs:
               -H "Content-Type: application/json" \
               -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
               -H "Authorization: Bearer "$HEROKU_API_KEY"" | jq '.[0].app.name')
-            if [ "$RELEASE_RESPONSE" != "chore-chart-test" ]; then
-              echo $RELEASE_RESPONSE
+            if [ "$RELEASE_RESPONSE" != '"chore-chart-test"' ]; then
               echo "Error: Failed to release new docker image to Heroku"
               exit 1
             fi
